@@ -1,12 +1,12 @@
 from rest_framework import serializers
-from .models import Lead_Data, Customer_Data
+from .models import LeadData, CustomerData
 
 class LeadSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Lead_Data
+        model = LeadData
         fields = '__all__'
 
 class CustomerSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Customer_Data
+        model = CustomerData
         fields = '__all__'

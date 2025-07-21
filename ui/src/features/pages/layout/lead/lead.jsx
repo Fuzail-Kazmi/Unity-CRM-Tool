@@ -1,7 +1,8 @@
-import { Plus, Trash2 } from 'lucide-react';
+import { Pencil, Plus, Settings } from 'lucide-react';
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import Toolbar from '../../../../components/ui/tool_bar';
 
 const columns = ["name", "email", "phone", "source"];
 
@@ -11,7 +12,10 @@ const LeadPage = () => {
 
   const fetchLeadDetail = () => {
     axios.get('http://127.0.0.1:8000/api/lead/')
-      .then(res => setLeadDetail(res.data))
+      .then(res => {
+        const extendedData = res.data.map(item => ({ ...item, selected: false }));
+        setLeadDetail(extendedData);
+      })
       .catch(err => console.log(err));
   };
 
@@ -19,10 +23,29 @@ const LeadPage = () => {
     fetchLeadDetail();
   }, []);
 
-  const handleDelete = (leadId) => {
-    const confirmDelete = window.confirm('Are you sure you want to delete this lead?');
-    if (confirmDelete) {
-      axios.delete(`http://127.0.0.1:8000/api/lead/delete/${leadId}/`)
+  const toggleSelect = (id) => {
+    const updated = leadDetail.map(c =>
+      c.id === id ? { ...c, selected: !c.selected } : c
+    );
+    setLeadDetail(updated);
+  };
+
+  const toggleSelectAll = (checked) => {
+    const updated = leadDetail.map(c => ({ ...c, selected: checked }));
+    setLeadDetail(updated);
+  };
+
+  const handleDelete = () => {
+    const toDelete = leadDetail.filter(c => c.selected);
+
+    if (toDelete.length === 0) return alert("No lead selected");
+
+    if (window.confirm(`Delete ${toDelete.length} selected lead(s)?`)) {
+      Promise.all(
+        toDelete.map(c =>
+          axios.delete(`http://127.0.0.1:8000/api/lead/delete/${c.id}/`)
+        )
+      )
         .then(() => fetchLeadDetail())
         .catch(err => console.log(err));
     }
@@ -30,60 +53,81 @@ const LeadPage = () => {
 
   return (
     <>
-      <div className="p-4">
-        <div className="flex items-center justify-between">
-          <h2 className="text-xl font-semibold mb-4">Lead Table</h2>
-          <button
-            onClick={() => navigate('/leadform')}
-            className="flex items-center gap-2 text-sm font-semibold bg-black/90 text-white p-2 rounded-lg cursor-pointer hover:bg-black/85"
-          >
-            <Plus className="h-4 w-4" /> Add
-          </button>
+      <div>
+        <div className="flex items-center justify-between border-b border-gray-300 pb-2">
+          <h2 className="text-lg font-semibold text-gray-500">Leads</h2>
+          <div className='flex items-center gap-2'>
+            <button
+              onClick={handleDelete}
+              className="text-sm font-semibold bg-gray-200 text-gray-800 py-2 px-4 rounded-lg cursor-pointer hover:bg-gray-200/75"
+            >
+              Delete
+            </button>
+            <button
+              onClick={() => navigate('/leadform')}
+              className="flex items-center gap-2 text-sm font-semibold bg-black/90 text-white p-2 rounded-lg cursor-pointer hover:bg-black/85"
+            >
+              <Plus className="h-4 w-4" /> Add
+            </button>
+          </div>
         </div>
 
-        <table className="w-full border border-gray-300">
-          <thead className="bg-gray-100">
-            <tr>
-              <th className="border-y border-gray-300 p-4 text-left">
-                <input type="checkbox" />
+        <div>
+          <Toolbar />
+        </div>
+
+        <table className="w-full border border-gray-200 rounded-md overflow-hidden">
+          <thead className="bg-gray-200">
+            <tr className="text-xs text-gray-500 uppercase">
+              <th className="px-3 py-2 text-left">
+                <input
+                  type="checkbox"
+                  checked={leadDetail.length > 0 && leadDetail.every(c => c.selected)}
+                  onChange={(e) => toggleSelectAll(e.target.checked)}
+                />
               </th>
               {columns.map((col, index) => (
                 <th
                   key={index}
-                  className="border-y border-gray-300 p-4 font-semibold text-left"
+                  className="px-3 py-2 font-medium text-left whitespace-nowrap"
                 >
                   {col.replace('_', ' ')}
                 </th>
               ))}
-              <th className="border-y border-gray-300 p-4 font-semibold text-left">Actions</th>
+              <th className="px-3 py-2 text-right">
+                <Settings className="h-4 w-4 inline-block text-gray-500" />
+              </th>
             </tr>
           </thead>
-          <tbody>
+          <tbody className="text-sm text-gray-700">
             {leadDetail.map((lead, i) => (
-              <tr key={i}>
-                <td className="border-y border-gray-300 px-4 py-4">
-                  <input type="checkbox" />
+              <tr
+                key={i}
+                className="border-t border-gray-200 hover:bg-gray-50 transition"
+              >
+                <td className="px-3 py-3">
+                  <input
+                    type="checkbox"
+                    checked={lead.selected}
+                    onChange={() => toggleSelect(lead.id)}
+                  />
                 </td>
                 {columns.map((col, index) => (
                   <td
                     key={index}
-                    className="border-y border-gray-300 px-4 py-4 text-sm"
+                    className="px-3 py-3 whitespace-nowrap"
                   >
                     {lead[col]}
                   </td>
                 ))}
-                <td className="border-y border-gray-300 px-4 py-4 text-sm">
-                  <button
-                    onClick={() => handleDelete(lead.id)}
-                    className="hover:text-red-600 cursor-pointer"
-                  >
-                    <Trash2 className='h-5 w-5' />
-                  </button>
+                <td className="px-3 py-3 text-right">
+                  <Pencil className="h-4 w-4 text-gray-500 inline-block" />
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
+
       </div>
     </>
   );
