@@ -60,7 +60,7 @@ const Sidebar = () => {
             onClick={() => setOpen(!open)}
           >
             <div className="flex items-center gap-2">
-              <div className="bg-fuchsia-600 text-white w-9 h-9 flex items-center justify-center rounded-md">
+              <div className="bg-gray-900 text-white w-9 h-9 flex items-center justify-center rounded-md">
                 <Funnel className='h-5 w-5' />
               </div>
               {!collapsed && (
@@ -74,7 +74,7 @@ const Sidebar = () => {
           </div>
 
           {open && !collapsed && (
-            <div className="absolute z-50 bg-white shadow-lg rounded-md mt-1 right-0 w-44 text-sm border border-gray-200">
+            <div className="absolute z-50 bg-white shadow-lg rounded-md mt-1 right-0 top-15 w-60 text-sm border border-gray-200">
               <ul className="py-1 text-gray-700">
                 <li className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 cursor-pointer"><Grid3x3 className="h-4 w-4" />Apps</li>
                 <li className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 cursor-pointer"><Moon className="h-4 w-4" />Toggle theme</li>
