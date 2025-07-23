@@ -1,9 +1,16 @@
-import React from 'react'
+import React from 'react';
 
-const ButtonComponent = () => {
+export const Button = ({ children, onClick, className, type = 'button' }) => {
   return (
-    <div>ButtonComponent</div>
-  )
-}
+    <button
+      type={type}
+      onClick={onClick}
+      className={`text-sm font-semibold bg-black/90 text-white p-2 rounded-lg cursor-pointer hover:bg-black/85 transition ${className || ''}`}
 
-export default ButtonComponent
+    >
+      {children}
+    </button>
+  );
+};
+
+export default Button;

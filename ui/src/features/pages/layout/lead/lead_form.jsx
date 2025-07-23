@@ -90,8 +90,8 @@ const LeadForm = () => {
               <label className="block text-xs text-gray-500 mb-1">Mobile No</label>
               <input
                 type="text"
-                name="phone"
-                value={leadCreate.phone}
+                name="mobile"
+                value={leadCreate.mobile}
                 onChange={handleChange}
                 placeholder="Mobile No"
                 className="w-full rounded-md border border-gray-300 bg-gray-50 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"

@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { EllipsisVertical, Plus, Settings, X } from 'lucide-react';
+import { Plus, Settings, X } from 'lucide-react';
 import axios from 'axios';
 
-const Toolbar = React.lazy(() => import('../../../../components/ui/tool_bar'))
-const LeadActions = React.lazy(() => import('../../../../components/ui/leadRowToolbar'))
+const Toolbar = React.lazy(() => import('@/components/ui/tool_bar'))
+const LeadActions = React.lazy(() => import('@/components/ui/leadRowToolbar'))
 const LeadForm = React.lazy(() => import('./lead_form'))
 
-const columns = ["name", "email", "phone", "source", "Date"];
+const columns = ["name", "email", "mobile", "source", "last_updated"];
 
 const LeadPage = () => {
   const [lead, setLead] = useState([]);

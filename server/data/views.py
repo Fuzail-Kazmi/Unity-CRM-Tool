@@ -40,7 +40,8 @@ def convert_to_customer(request, pk):
             lead=lead,
             name=lead.name,
             email=lead.email,
-            phone=lead.phone
+            mobile=lead.mobile,
+            created_at=lead.created_at
         )
 
         return Response({'message': 'Converted successfully', 'customer_id': customer.pk}, status=200)

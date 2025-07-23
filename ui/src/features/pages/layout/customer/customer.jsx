@@ -2,9 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { Pencil, Plus, Settings, X } from 'lucide-react';
 import axios from 'axios';
 import CustomerForm from './customer_form';
-import Toolbar from '../../../../components/ui/tool_bar';
+import Toolbar from '@/components/ui/tool_bar';
 
-const columns = ['name', 'email', 'phone'];
+const columns = ['name', 'email', 'mobile', 'created_at'];
 
 const CustomerPage = () => {
   const [customerDetail, setCustomerDetail] = useState([]);
