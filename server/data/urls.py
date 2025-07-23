@@ -8,6 +8,7 @@ urlpatterns = [
     path('lead/update/<int:pk>/', views.updateLead),
     path('lead/delete/<int:pk>/', views.deleteLead),
     path('lead/convert/<int:pk>/', views.convert_to_customer),
+    path('lead/<int:pk>/update-status/', views.updateLeadStatus),
     path('customer/', views.getCustomer),
     path('customer/create/', views.createCustomer),
     path('customer/update/<int:pk>/', views.updateCustomer),

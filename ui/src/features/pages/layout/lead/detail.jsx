@@ -61,7 +61,7 @@ const Index = () => {
   return (
     <>
       <div>
-        <div className="flex items-center justify-between border-b border-gray-300 pb-2">
+        <div className="flex items-center justify-between border-b border-gray-200 pb-2">
           <h2 className="flex items-center gap-1 text-lg font-semibold"><p className='text-gray-500'>Lead/</p>{data?.salutation} {data?.name}</h2>
           <div className='flex items-center gap-2'>
             <StatusDropdown
@@ -76,11 +76,8 @@ const Index = () => {
             )}
           </div>
         </div>
-        <div>
-          <h2>Lead Detail</h2>
-          <p>Name: {data.name}</p>
-          <p>Email: {data.email}</p>
-          <p>Customer: {data.customer !== null ? `ID: ${data.customer.pk}` : 'Not a customer yet'}</p>
+        <div className='border-b border-gray-200 pb-2'>
+
         </div>
       </div>
     </>

@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Pencil, Plus, Settings, X } from 'lucide-react';
+import { EllipsisVertical, Plus, Settings, X } from 'lucide-react';
 import axios from 'axios';
-import Toolbar from '../../../../components/ui/tool_bar';
-import LeadForm from './lead_form';
+
+const Toolbar = React.lazy(() => import('../../../../components/ui/tool_bar'))
+const LeadActions = React.lazy(() => import('../../../../components/ui/leadRowToolbar'))
+const LeadForm = React.lazy(() => import('./lead_form'))
 
 const columns = ["name", "email", "phone", "source", "Date"];
 
@@ -10,6 +12,11 @@ const LeadPage = () => {
   const [lead, setLead] = useState([]);
   const [editData, setEditData] = useState(null);
   const [showAddForm, setShowAddForm] = useState(false);
+  const [activeDropdownId, setActiveDropdownId] = useState(null);
+
+  const handleDropdownToggle = (leadId) => {
+    setActiveDropdownId(prev => (prev === leadId ? null : leadId));
+  };
 
   const fetchLead = () => {
     axios.get('http://127.0.0.1:8000/api/lead/')
@@ -164,9 +171,12 @@ const LeadPage = () => {
                   </td>
                 ))}
                 <td className="px-3 py-3 text-right">
-                  <Pencil
-                    className="h-4 w-4 text-gray-500 inline-block cursor-pointer"
-                    onClick={() => handleEdit(lead)}
+                  <LeadActions
+                    lead={lead}
+                    isOpen={activeDropdownId === lead.id}
+                    onToggle={() => handleDropdownToggle(lead.id)}
+                    onEdit={handleEdit}
+                    onDelete={handleDelete}
                   />
                 </td>
               </tr>

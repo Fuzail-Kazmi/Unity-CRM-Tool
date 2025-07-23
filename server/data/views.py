@@ -13,7 +13,10 @@ def getLead(request):
         try:
             lead = LeadData.objects.get(pk= request.GET.get("id"))
             serializer = LeadSerializer(lead)
-            data = {**serializer.data, 'customer':CustomerData.objects.only('pk').filter(lead__pk=request.GET.get('id')).first()}
+            # data = {**serializer.data, 'customer':CustomerData.objects.only('pk').filter(lead__pk=request.GET.get('id')).first()}
+            customer = CustomerData.objects.filter(lead__pk=request.GET.get('id')).first()
+            customer_data = CustomerSerializer(customer).data if customer else None
+            data = {**serializer.data, 'customer': customer_data}
             return Response(data)
         except LeadData.DoesNotExist:
             return Response(data={'message':'please provide a valid lead id'}, status=status.HTTP_404_NOT_FOUND)
@@ -24,8 +27,6 @@ def getLead(request):
 
 @api_view(['PATCH'])
 def convert_to_customer(request, pk):
-    print("Received pk:", pk)
-    
     try:
         lead = LeadData.objects.get(id=pk)
     except LeadData.DoesNotExist:
@@ -47,10 +48,18 @@ def convert_to_customer(request, pk):
     except IntegrityError:
         return Response({'error': 'Customer with this email already exists'}, status=400)
 
-    except Exception as e:
-        print("Conversion error:", e)
-        import traceback; traceback.print_exc()
-        return Response({'error': 'Internal Server Error'}, status=500)
+@api_view(['PATCH'])
+def updateLeadStatus(request, pk):
+    try:
+        lead = LeadData.objects.get(id=pk)
+    except LeadData.DoesNotExist:
+        return Response({'error': 'Lead not found'}, status=404)
+
+    serializer = LeadSerializer(lead, data=request.data, partial=True)
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data, status=200)
+    return Response(serializer.errors, status=400)
 
 @api_view(['POST'])
 def createLead(request):

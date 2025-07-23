@@ -21,9 +21,10 @@ const StatusDropdown = ({ leadId, currentStatus, onStatusChange }) => {
     setSelectedStatus(status.label);
     setIsOpen(false);
     try {
-      const response = await axios.patch(`http://127.0.0.1:8000/api/lead/?id=${id}`, {
-        status: status.label
-      });
+      const response = await axios.patch(
+        `http://127.0.0.1:8000/api/lead/${leadId}/update-status/`,
+        { status: status.label }
+      );
       if (onStatusChange) {
         onStatusChange(status.label);
       }
