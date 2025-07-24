@@ -5,6 +5,7 @@ import axios from 'axios';
 const Toolbar = React.lazy(() => import('@/components/ui/tool_bar'))
 const LeadActions = React.lazy(() => import('@/components/ui/leadRowToolbar'))
 const LeadForm = React.lazy(() => import('./lead_form'))
+import { Button } from '@/components/ui/button'
 
 const columns = ["name", "email", "mobile", "source", "last_updated"];
 
@@ -111,12 +112,7 @@ const LeadPage = () => {
             >
               Delete
             </button>
-            <button
-              onClick={() => setShowAddForm(true)}
-              className="flex items-center gap-2 text-sm font-semibold bg-black/90 text-white p-2 rounded-lg cursor-pointer hover:bg-black/85"
-            >
-              <Plus className="h-4 w-4" /> Add
-            </button>
+            <Button onClick={() => setShowAddForm(true)} size='sm'>Add</Button>
           </div>
         </div>
 

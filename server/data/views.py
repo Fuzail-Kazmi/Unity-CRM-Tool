@@ -1,8 +1,8 @@
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
-from .models import LeadData, CustomerData
-from .serializers import LeadSerializer, CustomerSerializer
+from .models import LeadData, CustomerData , EmailModel
+from .serializers import LeadSerializer, CustomerSerializer , EmailSerializer
 from django.db import IntegrityError
 
 # Create your views here.
@@ -41,7 +41,6 @@ def convert_to_customer(request, pk):
             name=lead.name,
             email=lead.email,
             mobile=lead.mobile,
-            created_at=lead.created_at
         )
 
         return Response({'message': 'Converted successfully', 'customer_id': customer.pk}, status=200)
@@ -61,6 +60,37 @@ def updateLeadStatus(request, pk):
         serializer.save()
         return Response(serializer.data, status=200)
     return Response(serializer.errors, status=400)
+
+@api_view(['GET'])
+def getSendEmail(request, pk):
+    try:
+        lead = LeadData.objects.get(id=pk)
+    except LeadData.DoesNotExist:
+        return Response({'error': 'Lead not found'}, status=404)
+
+    emails = EmailModel.objects.filter(lead=lead).order_by('-created')
+    serializer = EmailSerializer(emails, many=True)
+    return Response(serializer.data)
+
+
+@api_view(['POST'])
+def createSendEmail(request, pk):
+    try:
+        lead = LeadData.objects.get(id=pk)
+    except LeadData.DoesNotExist:
+        return Response({'error': 'Lead not found'}, status=404)
+
+    data = request.data.copy()
+    data['lead'] = pk
+    data['sent_to'] = lead.email
+    data['sent_from'] = "admin@yourcrm.com" 
+
+    serializer = EmailSerializer(data=data)
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['POST'])
 def createLead(request):

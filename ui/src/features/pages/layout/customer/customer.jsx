@@ -4,7 +4,7 @@ import axios from 'axios';
 import CustomerForm from './customer_form';
 import Toolbar from '@/components/ui/tool_bar';
 
-const columns = ['name', 'email', 'mobile', 'created_at'];
+const columns = ['name', 'email', 'mobile', 'created'];
 
 const CustomerPage = () => {
   const [customerDetail, setCustomerDetail] = useState([]);
