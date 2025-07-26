@@ -40,7 +40,7 @@ const LeadActions = ({ lead, isOpen, onToggle, onEdit, onDelete }) => {
                 onToggle();
                 navigate(`/lead/${lead.id}`);
               }}
-              className="flex items-center w-full px-4 py-2 hover:bg-gray-100"
+              className="flex items-center w-full px-4 py-2 hover:bg-gray-100 cursor-pointer"
             >
               <Eye className="h-4 w-4 mr-2" />
               View
@@ -50,20 +50,10 @@ const LeadActions = ({ lead, isOpen, onToggle, onEdit, onDelete }) => {
                 onToggle();
                 onEdit(lead);
               }}
-              className="flex items-center w-full px-4 py-2 hover:bg-gray-100"
+              className="flex items-center w-full px-4 py-2 hover:bg-gray-100 cursor-pointer" 
             >
               <Pencil className="h-4 w-4 mr-2" />
               Edit
-            </button>
-            <button
-              onClick={() => {
-                onToggle();
-                onDelete(lead);
-              }}
-              className="flex items-center w-full px-4 py-2 text-red-600 hover:bg-gray-100"
-            >
-              <Trash2 className="h-4 w-4 mr-2" />
-              Delete
             </button>
           </div>
         </div>

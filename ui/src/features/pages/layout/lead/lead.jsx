@@ -1,30 +1,44 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Plus, Settings, X } from 'lucide-react';
+import { Button } from '@/components/ui/button'
 import axios from 'axios';
+
+import { formatDistanceToNow } from 'date-fns';
 
 const Toolbar = React.lazy(() => import('@/components/ui/tool_bar'))
 const LeadActions = React.lazy(() => import('@/components/ui/leadRowToolbar'))
 const LeadForm = React.lazy(() => import('./lead_form'))
-import { Button } from '@/components/ui/button'
 
-const columns = ["name", "email", "mobile", "source", "last_updated"];
+const columns = ["name", "email", "mobile", "source"];
 
 const LeadPage = () => {
+  const navigate = useNavigate();
   const [lead, setLead] = useState([]);
   const [editData, setEditData] = useState(null);
   const [showAddForm, setShowAddForm] = useState(false);
   const [activeDropdownId, setActiveDropdownId] = useState(null);
+
+  const getTimeAgo = (dateString) => {
+    if (!dateString) return 'No update date';
+
+    const parsedDate = new Date(dateString);
+    if (isNaN(parsedDate)) return 'Invalid date';
+
+    return formatDistanceToNow(parsedDate, { addSuffix: true });
+  };
 
   const handleDropdownToggle = (leadId) => {
     setActiveDropdownId(prev => (prev === leadId ? null : leadId));
   };
 
   const fetchLead = () => {
-    axios.get('http://127.0.0.1:8000/api/lead/')
+    axios.get(`http://127.0.0.1:8000/api/lead/?t=${Date.now()}`)
       .then(res => {
-        const extendedData = res.data.map(item => ({ ...item, selected: false }));
+        const extendedData = res.data
+          .sort((a, b) => b.id - a.id)
+          .map(item => ({ ...item, selected: false }));
         setLead(extendedData);
-        console.log(extendedData)
       })
       .catch(err => console.log(err));
   };
@@ -57,7 +71,7 @@ const LeadPage = () => {
         type="text"
         value={value || ""}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full rounded-md border border-gray-300 bg-gray-50 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+        className="w-full rounded-md border border-gray-300 bg-gray-50 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-500"
         placeholder={label}
       />
     </div>
@@ -65,18 +79,16 @@ const LeadPage = () => {
 
   const handleUpdateLead = async () => {
     try {
+      console.log("Sending data to backend:", editData);
       await axios.put(
         `http://127.0.0.1:8000/api/lead/update/${editData.id}/`,
         editData
       );
 
-      setLead((prevLeads) =>
-        prevLeads.map((lead) =>
-          lead.id === editData.id ? { ...editData } : lead
-        )
-      );
+      fetchLead();
 
       setEditData(null);
+
       alert("Lead updated successfully");
     } catch (error) {
       console.error("Update failed:", error);
@@ -102,7 +114,7 @@ const LeadPage = () => {
 
   return (
     <>
-      <div>
+      <div className='max-h-[96dvh] overflow-y-auto'>
         <div className="flex items-center justify-between border-b border-gray-300 pb-2">
           <h2 className="text-lg font-semibold text-gray-500">Leads</h2>
           <div className='flex items-center gap-2'>
@@ -119,66 +131,75 @@ const LeadPage = () => {
         <div>
           <Toolbar />
         </div>
-
-        <table className="w-full border border-gray-200 rounded-md overflow-hidden">
-          <thead className="bg-gray-200">
-            <tr className="text-xs text-gray-500 uppercase">
-              <th className="px-3 py-2 text-left">
-                <input
-                  type="checkbox"
-                  checked={lead.length > 0 && lead.every(c => c.selected)}
-                  onChange={(e) => toggleSelectAll(e.target.checked)}
-                  className='cursor-pointer'
-                />
-              </th>
-              {columns.map((col, index) => (
-                <th
-                  key={index}
-                  className="px-3 py-2 font-medium text-left whitespace-nowrap"
-                >
-                  {col.replace('_', ' ')}
-                </th>
-              ))}
-              <th className="px-3 py-2 text-right">
-                <Settings className="h-4 w-4 inline-block text-gray-500" />
-              </th>
-            </tr>
-          </thead>
-          <tbody className="text-sm text-gray-700">
-            {lead.map((lead, i) => (
-              <tr
-                key={i}
-                className="border-t border-gray-200 hover:bg-gray-50 transition"
-              >
-                <td className="px-3 py-3">
+        <div className='max-h-[80vh] h-[80vh] overflow-y-auto'>
+          <table className="w-full border border-gray-200 rounded-md">
+            <thead className="bg-gray-200">
+              <tr className="text-xs text-gray-500 uppercase">
+                <th className="px-3 py-2 text-left">
                   <input
                     type="checkbox"
-                    checked={lead.selected}
-                    onChange={() => toggleSelect(lead.id)}
+                    checked={lead.length > 0 && lead.every(c => c.selected)}
+                    onChange={(e) => toggleSelectAll(e.target.checked)}
                     className='cursor-pointer'
                   />
-                </td>
+                </th>
                 {columns.map((col, index) => (
-                  <td
+                  <th
                     key={index}
-                    className="px-3 py-3 whitespace-nowrap"
+                    className="px-3 py-2 font-medium text-left whitespace-nowrap"
                   >
-                    {lead[col]}
-                  </td>
+                    {col.replace('_', ' ')}
+                  </th>
                 ))}
-                <td className="px-3 py-3 text-right">
-                  <LeadActions
-                    lead={lead}
-                    isOpen={activeDropdownId === lead.id}
-                    onToggle={() => handleDropdownToggle(lead.id)}
-                    onEdit={handleEdit}
-                    onDelete={handleDelete}
-                  />
-                </td>
+                <th className="px-3 py-2 font-medium text-left whitespace-nowrap">
+                  Last Updated
+                </th>
+                <th className="px-3 py-2 text-right">
+                  <Settings className="h-4 w-4 inline-block text-gray-500" />
+                </th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody className="text-sm text-gray-700">
+              {lead.map((lead, i) => (
+                <tr
+                  key={i}
+                  className="border-t border-gray-200 hover:bg-gray-200/25 transition cursor-pointer"
+                  onClick={() => navigate(`/lead/${lead.id}`)}
+                >
+                  <td className="px-3 py-3">
+                    <input
+                      type="checkbox"
+                      checked={lead.selected}
+                      onChange={() => toggleSelect(lead.id)}
+                      className='cursor-pointer'
+                      onClick={(e) => e.stopPropagation()}
+                    />
+                  </td>
+                  {columns.map((col, index) => (
+                    <td
+                      key={index}
+                      className="px-3 py-3 whitespace-nowrap"
+                    >
+                      {lead[col]}
+                    </td>
+                  ))}
+
+                  <td className="px-3 py-3 whitespace-nowrap text-xs text-gray-500">
+                    {getTimeAgo(lead.last_updated)}
+                  </td>
+                  <td onClick={(e) => e.stopPropagation()} className="px-3 py-3 text-right">
+                    <LeadActions
+                      lead={lead}
+                      isOpen={activeDropdownId === lead.id}
+                      onToggle={() => handleDropdownToggle(lead.id)}
+                      onEdit={handleEdit}
+                    />
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
         {editData && (
           <div className="fixed inset-0 bg-black/40 flex justify-center items-center z-50">
             <div className="bg-white rounded-xl shadow-lg w-full max-w-3xl p-6 md:p-8">
@@ -226,8 +247,8 @@ const LeadPage = () => {
 
                   {inputField({
                     label: "Mobile No",
-                    value: editData.phone,
-                    onChange: (val) => setEditData({ ...editData, phone: val }),
+                    value: editData.mobile,
+                    onChange: (val) => setEditData({ ...editData, mobile: val }),
                   })}
                 </div>
 
@@ -325,7 +346,10 @@ const LeadPage = () => {
                   <X className='h-5 w-5' />
                 </button>
               </div>
-              <LeadForm />
+              <LeadForm onSuccess={() => {
+                fetchLead();
+                setShowAddForm(false);
+              }} />
             </div>
           </div>
         )}

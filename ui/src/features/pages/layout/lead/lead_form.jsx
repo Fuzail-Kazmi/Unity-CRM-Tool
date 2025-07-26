@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 
-const LeadForm = () => {
+const LeadForm = ({ onSuccess }) => {
   const [leadCreate, setLeadCreate] = useState({
     salutation: '',
     name: '',
     email: '',
-    phone: '',
+    mobile: '',
     source: '',
     organization: '',
     no_of_employee: '',
@@ -23,7 +23,7 @@ const LeadForm = () => {
     });
   };
 
-    const handleSubmit = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     const sanitizedData = {
@@ -36,6 +36,11 @@ const LeadForm = () => {
       const response = await axios.post("http://127.0.0.1:8000/api/lead/create/", sanitizedData);
       console.log("Lead created:", response.data);
       setMessage('Lead created successfully!');
+
+      if (onSuccess) {
+        onSuccess();
+      }
+
     } catch (err) {
       if (err.response) {
         console.log("Server response error:", err.response.data);
